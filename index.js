@@ -24,3 +24,7 @@ app.get("/joyas/filtros", async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+app.get("*", (req, res) => {
+  res.status(404).send("Ruta no encontrada");
+});
