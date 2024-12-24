@@ -87,7 +87,7 @@ const getJoyasFilter = async ({ precio_min, precio_max, categoria, metal }) => {
 const reportRequest = (req, res, next) => {
   const params = req.query;
   console.log(
-    `Hoy ${new Date()} se ha hecho una consulta en la ruta: ${
+    `Hoy ${new Date()} se ha hecho una consulta ${req.method} en la ruta: ${
       req.url
     } con los parametros: ${JSON.stringify(params)}`
   );
