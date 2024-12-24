@@ -13,12 +13,14 @@ const pool = new Pool({
 });
 
 const convertHATEOAS = (result) => {
-  const results = result.map((r) => {
-    return {
-      name: r.nombre,
-      href: `/joyas/joya/${r.id}`,
-    };
-  });
+  const results = result
+    .map((r) => {
+      return {
+        name: r.nombre,
+        href: `/joyas/joya/${r.id}`,
+      };
+    })
+    .slice(0, 6);
 
   const joyas = result.length;
   const stockTotal = result.reduce((a, b) => a + b.stock, 0);
@@ -41,7 +43,6 @@ const getJoyas = async ({ limit = 6, page = 1, order_by = "id_ASC" }) => {
       Math.abs(limit),
       Math.abs((page - 1) * limit)
     );
-    console.log(query);
     const { rows: joyas } = await pool.query(query);
     const result = joyas.map((j) => {});
     if (joyas.length === 0) {
@@ -70,37 +71,27 @@ const getJoyasFilter = async ({ precio_min, precio_max, categoria, metal }) => {
     if (filter.length > 0) {
       query += ` WHERE ${filter.join(" AND ")}`;
     }
-
-    console.log(query);
     const { rows: joyas } = await pool.query(query, values);
     if (joyas.length === 0) {
       throw new Error("Joyas no encontradas");
     } else {
       return joyas;
     }
-
-    // let query = format(
-    //   `SELECT * FROM inventario WHERE precio BETWEEN %s AND %s ${
-    //     categoria === "categoria"
-    //       ? "AND categoria = %s"
-    //       : "AND categoria = '%s'"
-    //   } ${metal === "metal" ? "AND metal = %s" : "AND metal = '%s'"}`,
-    //   precio_min,
-    //   precio_max,
-    //   categoria,
-    //   metal
-    // );
-    // console.log(query);
-    // const { rows: joyas } = await pool.query(query);
-
-    // if (joyas.length === 0) {
-    //   throw new Error("Joyas no encontradas");
-    // } else {
-    //   return joyas;
-    // }
   } catch (error) {
     throw new Error(error, "Error al obtener las joyas");
   }
 };
 
-module.exports = { getJoyas, getJoyasFilter, convertHATEOAS };
+// * ------     MIDDLEWARES    ------- *
+
+const reportRequest = (req, res, next) => {
+  const params = req.query;
+  console.log(
+    `Hoy ${new Date()} se ha hecho una consulta en la ruta: ${
+      req.url
+    } con los parametros: ${JSON.stringify(params)}`
+  );
+  next();
+};
+
+module.exports = { getJoyas, getJoyasFilter, convertHATEOAS, reportRequest };
